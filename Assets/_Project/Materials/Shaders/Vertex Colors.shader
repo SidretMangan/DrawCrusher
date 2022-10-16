@@ -1,7 +1,4 @@
-﻿// Toony Colors Pro+Mobile 2
-// (c) 2014-2020 Jean Moreno
-
-Shader "Toony Colors Pro 2/Examples URP/Cat Demo/Vertex Colors"
+﻿Shader "Toony Colors/Vertex Colors"
 {
 	Properties
 	{

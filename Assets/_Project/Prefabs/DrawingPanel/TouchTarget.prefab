@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3654611726429796138}
   - component: {fileID: 7239569731986349774}
   - component: {fileID: 8492799555761237956}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TouchTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,8 +29,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4499740942661599125}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_LocalPosition: {x: -1.5969242, y: 0.67242515, z: 0}
+  m_LocalScale: {x: 0.024, y: 0.024, z: 0.024}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -54,7 +54,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 7ed26d330de88584dbcc0e01f4039ef4, type: 2}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -95,7 +95,7 @@ TargetJoint2D:
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
   m_Anchor: {x: 0, y: 0}
-  m_Target: {x: 0.25138244, y: -4.8751636}
+  m_Target: {x: -0.7370421, y: 0.5700592}
   m_AutoConfigureTarget: 0
   m_MaxForce: 1
   m_DampingRatio: 1

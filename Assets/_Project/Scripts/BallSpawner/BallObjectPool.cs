@@ -24,7 +24,7 @@ namespace DrawCrusher.BallSpawner
 
             // Object to be parent
             _root = new GameObject().transform;
-            _root.name = "Bullets";
+            _root.name = "Balls";
             _root.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 

@@ -35,7 +35,8 @@ namespace DrawCrusher.BallSpawner
                 var dir = Quaternion.AngleAxis(i * 30, transform.up) * transform.forward;
 
                 // ball placement
-                var initPos = transform.position + dir * 1.0f;
+                var initPos = transform.position;
+                //var initPos = transform.position + dir * 1.0f;
 
                 // Set the initial position and velocity of the ball
                 b.Initialize(initPos, dir * 3.0f);

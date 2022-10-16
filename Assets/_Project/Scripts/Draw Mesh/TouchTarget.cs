@@ -30,7 +30,7 @@ namespace DrawCrusher.DrawingField
         }
 
         /// <summary>
-        /// Set whether the mouse target is a trigger
+        /// Set whether the touch target is a trigger
         /// </summary>
         public void SetTrigger(bool isTrigger)
         {

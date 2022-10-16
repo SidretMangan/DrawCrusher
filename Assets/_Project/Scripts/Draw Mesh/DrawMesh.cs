@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -58,7 +60,7 @@ namespace DrawCrusher.DrawingField
             GetComponent<MeshRenderer>().sharedMaterial = drawSettings.drawingMeshMaterial;
             polygonCollider2d = GetComponent<PolygonCollider2D>();
             rigidbody2d = GetComponent<Rigidbody2D>();
-            //rigidbody2d.bodyType = RigidbodyType2D.Kinematic;
+            rigidbody2d.bodyType = RigidbodyType2D.Kinematic;
             rigidbody2d.gravityScale = drawSettings.gravityScale;
             rigidbody2d.sharedMaterial = drawSettings.drawedMeshPhysicsMaterial;
             polygonCollider2d.sharedMaterial = drawSettings.drawedMeshPhysicsMaterial;
@@ -90,13 +92,18 @@ namespace DrawCrusher.DrawingField
 
             gameObject.layer = drawSettings.drawedMeshLayer;
 
-            //rigidbody2d.bodyType = RigidbodyType2D.Static;
+            rigidbody2d.bodyType = RigidbodyType2D.Static;
             if (drawSettings.autoDisappear)
             {
-                gameObject.AddComponent<DelayDestroy>().SetSurvivalTime(drawSettings.survivalTime);
+                DelayDestroy(gameObject, drawSettings.survivalTime).Forget();
             }
         }
+        private async UniTaskVoid DelayDestroy(GameObject gameObject,float survivalTime)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(survivalTime), ignoreTimeScale: false);
+            Destroy(gameObject);
 
+        }
         public void Destroy()
         {
             cloneNumber--;

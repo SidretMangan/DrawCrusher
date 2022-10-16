@@ -11,7 +11,7 @@ namespace DrawCrusher.DrawingField
         private int pointerId;
         [SerializeField] private Camera mainCamera;
         [SerializeField]
-        private TouchTarget mouseTarget;
+        private TouchTarget touchTarget;
         [SerializeField]
         private Transform drawMeshTemplate;
         [SerializeField()]
@@ -41,18 +41,18 @@ namespace DrawCrusher.DrawingField
             Ray ray = mainCamera.ScreenPointToRay(eventData.position);
             if (zPlaneZero.Raycast(ray, out float enter))
             {
-                Vector3 mousePosOffsetted = ray.GetPoint(enter);
+                Vector3 touchPosOffsetted = ray.GetPoint(enter);
 
                 if (isDrawing == false)
                 {
-                    if (CheckCanDraw(mousePosOffsetted))
+                    if (CheckCanDraw(touchPosOffsetted))
                     {
                         InitDraw();
                     }
                 }
                 else
                 {
-                    Drawing(mousePosOffsetted);
+                    Drawing(touchPosOffsetted);
                 }
             }
         }
@@ -68,17 +68,17 @@ namespace DrawCrusher.DrawingField
         private void Start()
         {
             currentLength = 0;
-            mouseTarget.Init(drawSettings);
+            touchTarget.Init(drawSettings);
             drawMeshTemplate.gameObject.SetActive(false);
         }
-        private bool CheckCanDraw(Vector3 mousePosOffseted)
+        private bool CheckCanDraw(Vector3 touchPosOffseted)
         {
-            // Update mouseTarget and its target position
-            mouseTarget.transform.position = mousePosOffseted;
-            mouseTarget.SetTarget(mousePosOffseted);
+            // Update touchTarget and its target position
+            touchTarget.transform.position = touchPosOffseted;
+            touchTarget.SetTarget(touchPosOffseted);
 
             // Drawing from obstacles is not allowed
-            if (mouseTarget.HitCantDrawObject())
+            if (touchTarget.HitCantDrawObject())
             {
                 return false;
             }
@@ -88,7 +88,7 @@ namespace DrawCrusher.DrawingField
         private void InitDraw()
         {
             drawLineVertices.Clear();
-            drawLineVertices.Add(mouseTarget.transform.position);
+            drawLineVertices.Add(touchTarget.transform.position);
 
             drawingMesh = Instantiate(drawMeshTemplate, Vector3.zero, Quaternion.identity).GetComponent<DrawMesh>();
             drawingMesh.Init(drawSettings);
@@ -99,15 +99,15 @@ namespace DrawCrusher.DrawingField
             isDrawing = true;
         }
 
-        private void Drawing(Vector3 mousePosOffseted)
+        private void Drawing(Vector3 touchPosOffseted)
         {
-            // Update mouseTarget position.
-            mouseTarget.SetTarget(mousePosOffseted);
-            float lengthIncrease = Vector2.Distance(mouseTarget.transform.position, drawLineVertices.Last());
+            // Update touchTarget position.
+            touchTarget.SetTarget(touchPosOffseted);
+            float lengthIncrease = Vector2.Distance(touchTarget.transform.position, drawLineVertices.Last());
             
             if (lengthIncrease >= drawSettings.stepLength)
             {
-                AddNewToDrawLine(mouseTarget.transform.position, lengthIncrease);
+                AddNewToDrawLine(touchTarget.transform.position, lengthIncrease);
             }
         }
 
@@ -126,7 +126,7 @@ namespace DrawCrusher.DrawingField
 
             OnEndDraw?.Invoke(drawingMesh);
 
-            mouseTarget.SetTrigger(true);
+            touchTarget.SetTrigger(true);
 
             drawingMesh = null;
             isDrawing = false;

@@ -11,6 +11,8 @@ namespace DrawCrusher.BallSpawner
         /// </summary>
         [SerializeField]
         private BallObjectPoolProvider _ballObjectPoolProvider;
+        [SerializeField] private float _spawnTime=1f;
+        [SerializeField] private float _speed=3f;
 
         private BallObjectPool _objectPool;
 
@@ -20,35 +22,27 @@ namespace DrawCrusher.BallSpawner
             _objectPool = _ballObjectPoolProvider.Get();
 
             // shoot balls regularly
-            Observable.Interval(TimeSpan.FromSeconds(1))
+            Observable.Interval(TimeSpan.FromSeconds(_spawnTime))
                 .Subscribe(_ => ShootBalls()).AddTo(this);
         }
 
         private void ShootBalls()
         {
-            // 3way
-            for (var i = -1; i < 2; i++)
-            {
-                var b = _objectPool.Rent(); // Get a Ball instance
+            var b = _objectPool.Rent(); // Get a Ball instance
 
-                // direction of ball
-                var dir = Quaternion.AngleAxis(i * 30, transform.up) * transform.forward;
+            // ball placement
+            var initPos = transform.position;
+            Vector3 dir = Vector3.up * -_speed;
+            // Set the initial position and velocity of the ball
+            b.Initialize(initPos, dir);
 
-                // ball placement
-                var initPos = transform.position;
-                //var initPos = transform.position + dir * 1.0f;
-
-                // Set the initial position and velocity of the ball
-                b.Initialize(initPos, dir * 3.0f);
-
-                // Fires a ball and returns it to the ObjectPool when finished
-                b.OnFinishedAsync
-                    .Take(1)
-                    .Subscribe(_ =>
-                    {
-                        _objectPool.Return(b);
-                    });
-            }
+            // Fires a ball and returns it to the ObjectPoo"l when finished
+            b.OnFinishedAsync
+                .Take(1)
+                .Subscribe(_ =>
+                {
+                    _objectPool.Return(b);
+                });
         }
     }
 }

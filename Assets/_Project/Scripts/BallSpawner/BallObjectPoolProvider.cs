@@ -28,7 +28,7 @@ namespace DrawCrusher.BallSpawner
 
         private void OnDestroy()
         {
-            // Destroy everything including Bullet in the pool
+            // Destroy everything including Ball in the pool
             _objectPool.Dispose();
         }
     }

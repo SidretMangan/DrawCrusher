@@ -5,13 +5,12 @@ namespace DrawCrusher.BlockManagement
 {
     public class Block : MonoBehaviour
     {
-        public event Action onHit = () => { };
+        public event Action blockOnHit = () => { };
 
         public MeshRenderer meshRenderer;
-
-        private void OnCollisionEnter2D(Collision2D collision)
+        public void InvokeHit()
         {
-            onHit();
+            blockOnHit();
         }
     }
 }

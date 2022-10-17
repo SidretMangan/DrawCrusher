@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using Random = UnityEngine.Random;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 namespace DrawCrusher.BlockManagement
 {
@@ -25,6 +27,8 @@ namespace DrawCrusher.BlockManagement
             public int wallHeightOffset = 0;
             public Material blockMaterial;
             public Gradient gradient;
+            public Mesh blockMesh;
+            public Transform blockCollectTransform;
         }
 
         private const float blockColorMinValue = 0.6f;
@@ -62,7 +66,7 @@ namespace DrawCrusher.BlockManagement
         }
         private void ResetLevel()
         {
-            GenerateLevel();
+            GenerateLevel().Forget();
         }
         private void CreateBoxCollider2D(Vector2 offset, Vector2 size)
         {
@@ -72,8 +76,9 @@ namespace DrawCrusher.BlockManagement
             collider.size = size;
         }
 
-        private void GenerateLevel()
+        private async UniTaskVoid GenerateLevel()
         {
+            await UniTask.Delay(1000);
             // Return all active blocks to the pool
             foreach (var block in activeBlocks)
             {
@@ -102,6 +107,7 @@ namespace DrawCrusher.BlockManagement
                     var block = GetBlock();
                     block.transform.position = position;
                     block.transform.localScale = new Vector3(sizeValues[blockSize], blockHeight, 0.125f);
+                    block.transform.rotation = Quaternion.Euler(0, 0, 0);
                     block.meshRenderer.material.color = color;
 
                     activeBlocks.Add(block);
@@ -170,21 +176,29 @@ namespace DrawCrusher.BlockManagement
             else
             {
                 block = GenerateBlock();
-                block.onHit += () =>
+                block.blockOnHit += () =>
                 {
-                    //TODO create new move not to remove before fall on ground and move to collect machine hub and change it to score money text
-                    activeBlocks.Remove(block);
-                    ReturnBlockToPool(block);
-                    //TODO move this to check after clean all in machine cash out then start. You need to stop ball spawning as well
-                    if (activeBlocks.Count == 0)
-                    {
-                        ResetLevel();
-                    }
+                    CollectBlockToMachine(block).Forget();
                 };
             }
             return block;
         }
+        private async UniTaskVoid CollectBlockToMachine(Block block)
+        {
+            var ct = block.gameObject.GetCancellationTokenOnDestroy();
+            await block.transform.DOMoveZ(config.blockCollectTransform.position.z, 0.25f);
 
+            await UniTask.WhenAll(
+            block.transform.DOMove(config.blockCollectTransform.position, 0.5f).WithCancellation(ct),
+            block.transform.DORotate(new Vector3(-180f,-180f,0),0.5f).WithCancellation(ct)
+                );
+            activeBlocks.Remove(block);
+            ReturnBlockToPool(block);
+            if (activeBlocks.Count == 0)
+            {
+                ResetLevel();
+            }
+        }
         private void ReturnBlockToPool(Block block)
         {
             block.gameObject.SetActive(false);
@@ -195,13 +209,12 @@ namespace DrawCrusher.BlockManagement
         {
             var go = new GameObject("Block");
             go.transform.parent = blocksContainer;
-
             var block = go.AddComponent<Block>();
             MeshFilter meshFilter = go.AddComponent<MeshFilter>();
-            meshFilter.mesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+            meshFilter.mesh = config.blockMesh;
             block.meshRenderer = go.AddComponent<MeshRenderer>();
             block.meshRenderer.material = config.blockMaterial;
-
+            block.gameObject.layer = 8;
             var blockCollider = go.AddComponent<BoxCollider2D>();
             blockCollider.sharedMaterial = nonBouncyMaterial;
             return block;

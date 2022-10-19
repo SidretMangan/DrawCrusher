@@ -1,12 +1,12 @@
 # Draw Crusher
 
 ##Tools i used
-⋅⋅* ProceduralToolkit
-⋅⋅* UniRx
-⋅⋅* UniTask
-⋅⋅* DOTween
+* ProceduralToolkit
+* UniRx
+* UniTask
+* DOTween
 
 ##Render Pipeline
-⋅⋅* URP
+* URP
 
  

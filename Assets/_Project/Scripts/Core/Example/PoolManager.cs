@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DrawCrusher.Core
+namespace GSL.PoolExp
 {
     public class PoolManager : MonoBehaviour
     {

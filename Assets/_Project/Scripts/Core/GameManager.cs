@@ -1,42 +1,38 @@
 using System;
 using UnityEngine;
 using DrawCrusher.UI;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using DrawCrusher.BlockManagement;
 
 namespace DrawCrusher.Core
 {
     public class GameManager : BaseSingleton<GameManager>
     {
         [Header("Connections")]
-        [SerializeField] private InputManager inputManager;
-        [SerializeField] private UIManager uiManager;
+        [SerializeField] public UIManager uiManager;
+        [SerializeField] private BlockGenerator blockGenerator;
         #region GameManage
         [HideInInspector] public GameState State;
         public static event Action<GameState> OnGameStateChanged;
-        private WaitForSeconds wait05 = new WaitForSeconds(0.5f);
-        private WaitForSeconds wait1 = new WaitForSeconds(1f);
-        private WaitForSeconds wait15 = new WaitForSeconds(1.5f);
-        private WaitForSeconds wait2 = new WaitForSeconds(2f);
-        private WaitForSeconds wait3 = new WaitForSeconds(3f);
-        public int lastLevel;
-        public bool endingLevel = false;
-        private string levelText = "Level";
-        private string tutorialShownText = "TutorialShown";
         #endregion
-        private void Start()
+        private async UniTaskVoid Start()
         {
-            //TODO first game state
+            uiManager.LoadingScreenOn(true);
+            await UniTask.Delay(2000);
+            uiManager.StartButtonOn(true);
+            uiManager.LoadingScreenOn(false);
         }
         public void UpdateGameState(GameState newState)
         {
             State = newState;
-            //TODO after state set, switch(newState) here
             switch (newState)
             {
                 case GameState.StartGame:
-                    break;
-                case GameState.PauseGame:
+                    HandleStartGame();
                     break;
                 case GameState.EndGame:
+                    HandleEndGame().Forget();
                     break;
             }
 
@@ -45,25 +41,26 @@ namespace DrawCrusher.Core
 
         private void HandleStartGame()
         {
-            //TODO load playerprefs or SO or JSONUtility values to start from 
+            uiManager.StartButtonOn(false);
+            uiManager.StartGameStateUIBegin();
         }
-        private void HandlePauseGame()
+        private async UniTaskVoid HandleEndGame()
         {
-            //TODO when application on pause invoke this one
-        }
-        private void HandleEndGame()
-        {
-            //TODO save playerprefs or SO or JSONUtility values to end 
+            uiManager.LoadingScreenOn(true);
+            uiManager.EndGameStateUIBegin();
+            await UniTask.Delay(2000);
+            DOTween.KillAll();
+            GC.Collect();
+            await UniTask.Delay(1000);
+            blockGenerator.Generate();
+            await UniTask.Delay(1000);
+            uiManager.LoadingScreenOn(false);
+            uiManager.StartButtonOn(true);
         }
         public enum GameState
         {
             StartGame,
-            PauseGame,
             EndGame
         }
-
     }
-  
-
-
 }

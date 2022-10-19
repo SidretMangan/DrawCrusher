@@ -9,7 +9,7 @@ namespace DrawCrusher.Core
         {
             DOTween.Init();
             DOTween.SetTweensCapacity(500, 50);
-            //Application.targetFrameRate = 30;
+            Application.targetFrameRate = 30;
         }
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.Assertions;
 using Random = UnityEngine.Random;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DrawCrusher.Core;
 
 namespace DrawCrusher.BlockManagement
 {
@@ -40,7 +41,6 @@ namespace DrawCrusher.BlockManagement
 
         private Transform blocksContainer;
         private PhysicsMaterial2D nonBouncyMaterial;
-        private GameObject borders;
         private List<Block> activeBlocks = new List<Block>();
         private Queue<Block> pool = new Queue<Block>();
 
@@ -49,13 +49,11 @@ namespace DrawCrusher.BlockManagement
             {BlockSize.Narrow, 0.125f},
             {BlockSize.Wide, 0.25f},
         };
-
         public Blocker()
         {
             blocksContainer = new GameObject("Blocks").transform;
             nonBouncyMaterial = new PhysicsMaterial2D { name = "NonBouncy", bounciness = 0, friction = 1 };
         }
-
         public void Generate(Config config)
         {
             Assert.IsTrue(config.wallWidth > 0);
@@ -64,28 +62,25 @@ namespace DrawCrusher.BlockManagement
             this.config = config;
             ResetLevel();
         }
-        private void ResetLevel()
+        public void ClearActiveBlocks()
         {
-            GenerateLevel().Forget();
-        }
-        private void CreateBoxCollider2D(Vector2 offset, Vector2 size)
-        {
-            var collider = borders.AddComponent<BoxCollider2D>();
-            collider.sharedMaterial = nonBouncyMaterial;
-            collider.offset = offset;
-            collider.size = size;
-        }
-
-        private async UniTaskVoid GenerateLevel()
-        {
-            await UniTask.Delay(1000);
+            if (activeBlocks.Count == 0) return;
             // Return all active blocks to the pool
             foreach (var block in activeBlocks)
             {
                 ReturnBlockToPool(block);
             }
             activeBlocks.Clear();
-
+        }
+        private void ResetLevel()
+        {
+            GenerateLevel().Forget();
+        }
+        private async UniTaskVoid GenerateLevel()
+        {
+            await UniTask.NextFrame();
+            ClearActiveBlocks();
+            await UniTask.NextFrame();
             for (int y = 0; y < config.wallHeight; y++)
             {
                 // Select a color for the current line
@@ -99,7 +94,6 @@ namespace DrawCrusher.BlockManagement
                 foreach (var blockSize in blockSizes)
                 {
                     var position = leftEdge + Vector3.right * sizeValues[blockSize] / 2;
-
                     // Randomize the tint of the current block
                     float colorValue = Random.Range(blockColorMinValue, blockColorMaxValue);
                     Color color = currentColor.WithV(colorValue).ToColor();
@@ -178,33 +172,37 @@ namespace DrawCrusher.BlockManagement
                 block = GenerateBlock();
                 block.blockOnHit += () =>
                 {
-                    CollectBlockToMachine(block).Forget();
+                    CollectThisBlockToMachine(block);
                 };
             }
             return block;
         }
-        private async UniTaskVoid CollectBlockToMachine(Block block)
+        private void CollectThisBlockToMachine(Block block)
         {
-            var ct = block.gameObject.GetCancellationTokenOnDestroy();
-            await block.transform.DOMoveZ(config.blockCollectTransform.position.z, 0.25f);
-
-            await UniTask.WhenAll(
-            block.transform.DOMove(config.blockCollectTransform.position, 0.5f).WithCancellation(ct),
-            block.transform.DORotate(new Vector3(-180f,-180f,0),0.5f).WithCancellation(ct)
-                );
-            activeBlocks.Remove(block);
-            ReturnBlockToPool(block);
-            if (activeBlocks.Count == 0)
+            block.transform.DOMoveZ(config.blockCollectTransform.position.z, 0.5f).SetLink(block.gameObject, LinkBehaviour.KillOnDisable).OnComplete(() =>
             {
-                ResetLevel();
-            }
+                block.transform.DOMove(config.blockCollectTransform.position, 0.5f).SetLink(block.gameObject, LinkBehaviour.KillOnDisable);
+                block.transform.DORotate(new Vector3(-180f, -180f, 0), 0.5f).SetLink(block.gameObject, LinkBehaviour.KillOnDisable).OnComplete(() =>
+                {
+                   
+                    GameManager.instance.uiManager.moneyVariable.ApplyChange(1);
+                    activeBlocks.Remove(block);
+                    ReturnBlockToPool(block);
+                    if (activeBlocks.Count == 0)
+                    {
+                        //ResetLevel();
+                        GameManager.instance.UpdateGameState(GameManager.GameState.EndGame);
+                    }
+                });
+            });
+            
+            
         }
         private void ReturnBlockToPool(Block block)
         {
             block.gameObject.SetActive(false);
             pool.Enqueue(block);
         }
-
         private Block GenerateBlock()
         {
             var go = new GameObject("Block");

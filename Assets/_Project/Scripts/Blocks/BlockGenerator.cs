@@ -14,7 +14,7 @@ namespace DrawCrusher.BlockManagement
             Generate();
             SetupPalette();
         }
-        private void Generate()
+        public void Generate()
         {
             GeneratePalette();
 

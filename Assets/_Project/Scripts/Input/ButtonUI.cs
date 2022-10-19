@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-//using FortuneWheel.Wheel;
-namespace GSL.InputWithPointerEventData.Exp1
+namespace DrawCrusher.UIInput
 {
     [RequireComponent(typeof(Image))]
     public class ButtonUI : AbstractBaseInput
@@ -10,10 +9,8 @@ namespace GSL.InputWithPointerEventData.Exp1
         private Image imageComponent;
         private Color normalColor = Color.white;
         private Color disabledColor = new Color(0.7843137f, 0.7843137f, 0.7843137f, 0.5f);
-        //[HideInInspector] protected FortuneWheelManager fortuneWheelManager;
         private void Awake()
         {
-            //fortuneWheelManager = FindObjectOfType<FortuneWheelManager>();
             imageComponent = GetComponent<Image>();
         }
         public override void OnPointerDown(PointerEventData eventData)

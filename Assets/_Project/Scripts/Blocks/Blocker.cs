@@ -26,6 +26,7 @@ namespace DrawCrusher.BlockManagement
             public int wallWidth = 9;
             public int wallHeight = 7;
             public int wallHeightOffset = 0;
+            public Transform blocksContainer;
             public Material blockMaterial;
             public Gradient gradient;
             public Mesh blockMesh;
@@ -39,7 +40,6 @@ namespace DrawCrusher.BlockManagement
 
         private Config config;
 
-        private Transform blocksContainer;
         private PhysicsMaterial2D nonBouncyMaterial;
         private List<Block> activeBlocks = new List<Block>();
         private Queue<Block> pool = new Queue<Block>();
@@ -51,7 +51,6 @@ namespace DrawCrusher.BlockManagement
         };
         public Blocker()
         {
-            blocksContainer = new GameObject("Blocks").transform;
             nonBouncyMaterial = new PhysicsMaterial2D { name = "NonBouncy", bounciness = 0, friction = 1 };
         }
         public void Generate(Config config)
@@ -206,7 +205,7 @@ namespace DrawCrusher.BlockManagement
         private Block GenerateBlock()
         {
             var go = new GameObject("Block");
-            go.transform.parent = blocksContainer;
+            go.transform.parent = config.blocksContainer;
             var block = go.AddComponent<Block>();
             MeshFilter meshFilter = go.AddComponent<MeshFilter>();
             meshFilter.mesh = config.blockMesh;

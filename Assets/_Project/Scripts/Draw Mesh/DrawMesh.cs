@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +29,6 @@ namespace DrawCrusher.DrawingField
 
         private DrawSettings drawSettings;
         private PolygonCollider2D polygonCollider2d;
-        private Rigidbody2D rigidbody2d;
         private Mesh mesh;
 
         private int grid;
@@ -59,10 +57,6 @@ namespace DrawCrusher.DrawingField
             GetComponent<MeshFilter>().mesh = mesh;
             GetComponent<MeshRenderer>().sharedMaterial = drawSettings.drawingMeshMaterial;
             polygonCollider2d = GetComponent<PolygonCollider2D>();
-            rigidbody2d = GetComponent<Rigidbody2D>();
-            rigidbody2d.bodyType = RigidbodyType2D.Kinematic;
-            rigidbody2d.gravityScale = drawSettings.gravityScale;
-            rigidbody2d.sharedMaterial = drawSettings.drawedMeshPhysicsMaterial;
             polygonCollider2d.sharedMaterial = drawSettings.drawedMeshPhysicsMaterial;
         }
 
@@ -84,15 +78,11 @@ namespace DrawCrusher.DrawingField
         {
             if (!drawSettings.createColliderWhenDrawing) polygonCollider2d.SetPath(0, points);
 
-            rigidbody2d.centerOfMass = centOfMass;
-            rigidbody2d.mass = SetMass();
-
             GetComponent<MeshRenderer>().sharedMaterial = drawSettings.drawedMeshMaterial;
 
 
             gameObject.layer = drawSettings.drawedMeshLayer;
 
-            rigidbody2d.bodyType = RigidbodyType2D.Static;
             if (drawSettings.autoDisappear)
             {
                 DelayDestroy(gameObject, drawSettings.survivalTime).Forget();
@@ -109,20 +99,6 @@ namespace DrawCrusher.DrawingField
             cloneNumber--;
             Destroy(gameObject);
         }
-
-        private float SetMass()
-        {
-            if (drawSettings.useDynamicMass == true)
-            {
-                // Roughly as a trapezoid, calculate the weight according to the area.
-                return Area;
-            }
-            else
-            {
-                return rigidbody2d.mass;
-            }
-        }
-
         #region Generate Mesh
         private void GenerateMesh()
         {

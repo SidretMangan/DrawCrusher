@@ -44,15 +44,6 @@ namespace DrawCrusher.DrawingField
         public float textureNormalizedWidth;
 
 
-        [Header("Drawed Mesh Mass Settings")]
-        //[Tooltip("Whether to make Rigidbody2D static")]
-        //public bool staticBody;
-        [Tooltip("Whether to apply dynamic mass, that is, the larger the area, the larger the mass")]
-        public bool useDynamicMass;
-        [Tooltip("The degree to which this object is affected by gravity")]
-        public float gravityScale;
-
-
         [Header("Length Limit Settings")]
         [Tooltip("Whether to limit the length")]
         public bool lengthLimit;

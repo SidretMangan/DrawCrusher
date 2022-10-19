@@ -1816,7 +1816,7 @@ PrefabInstance:
     - target: {fileID: 3919714413111258747, guid: 630f62e5890333042b3c2d61b27e4aa8,
         type: 3}
       propertyPath: _speed
-      value: 300
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 3919714413111258747, guid: 630f62e5890333042b3c2d61b27e4aa8,
         type: 3}
@@ -2963,8 +2963,8 @@ MonoBehaviour:
     drawedMeshPhysicsMaterial: {fileID: 6200000, guid: 7ed26d330de88584dbcc0e01f4039ef4,
       type: 2}
     stepLength: 0.1
-    startWidth: 0.2
-    endWidth: 0.2
+    startWidth: 0.15
+    endWidth: 0.15
     meshDepth: 1
     textureScrolling: 0
     textureAllowScale: 0
